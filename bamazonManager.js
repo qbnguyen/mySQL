@@ -19,16 +19,35 @@ connection.connect(function(error){
 
 function managerPrompt(){
     inquirer.prompt({
-        type:"checkbox",
+        type:"list",
         name: "managerPrompt",
         message: "What would you like to do?",
         choices: ["View products for sale", "View low inventory", "Add to inventory", "Add a new product", "Exit"]
 
-}).then(function(user){
+}).then(function(ans){
+    switch (ans.managerPrompt) {
+        case "View products for sale":
+            viewStock();
+            break;
+    
+        case "View low inventory":
+            break;
 
+        case "Add to inventory":
+            break;
+
+        case "Add a new product":
+            break;
+
+        case "Exit":
+            console.log("BYE!")
+            break;
+    }
 //rewrite into a switch case statement
-    if (user.managerPrompt = "View products for sale"){
-        connection.query("SELECT item_id, product_name, price, stock_quantity FROM products", function(error, response){
+   function viewStock()
+   {
+       var queryStr ="SELECT item_id, product_name, price, stock_quantity FROM products";
+        connection.query(queryStr, function(error, response){
             if (error){
                 console.log(error);
             }
@@ -37,8 +56,8 @@ function managerPrompt(){
                 console.table(response);
                 console.log("===========================================");
             });
+        
         }
-
     
     })
 }
