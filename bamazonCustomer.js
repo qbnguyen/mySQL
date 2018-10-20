@@ -14,7 +14,11 @@ connection.connect(function(error){
     if (error){
         console.log("error", error.stack);
     }
-    displayTable();
+    else{
+        displayTable();
+
+    }
+    
 });
 
 function displayTable(){
@@ -22,16 +26,37 @@ function displayTable(){
         if (error){
             console.log(error);
         }
-        console.log("HERE ARE ALL THE ITEMS AVAILABLE FOR SALE: ");
+        else{
+            console.log("HERE ARE ALL THE ITEMS AVAILABLE FOR SALE: ");
 
-        console.log("==========================================="); 
-        console.table(response);
-        console.log("===========================================");
-        promptItem(response);
+            console.log("==========================================="); 
+            console.table(response);
+            inquirer.prompt(
+                [{
+                    type: "list",
+                    name: "confirmation",
+                    message: "Would you like to purchase today?",
+                    choices: ["yes", "no"]
+
+                }]
+            )
+            .then(function(answer){
+                if (answer.confirmation == "yes"){
+                    console.log("===========================================");
+                    promptItem(response); 
+                }else{
+                    console.log("please come again");
+                    process.exit(0);
+                }
+            });
+            
+            
+        }
+        
     });
 }
 
-function promptItem(response){
+function promptItem(inventory){
     inquirer.prompt([
         {
             type: "integer",
@@ -40,16 +65,27 @@ function promptItem(response){
         }
     ])
     .then(function(userResponse){
-        console.log(userResponse.item_id);
-        console.log("===========================================");
-        promptQuantity(response);
+        var productID = userResponse.item_id;
+        for ( var i =0; i< inventory.length; i++){
+            if (productID == inventory[i].item_id){
+                var item = inventory[i];
+            }
+        }
+        if (item){
+            promptQuantity(item);
+        }else{
+            console.log("Sorry item does not exist");
+            displayTable();
+        }
+        // console.log("===========================================");
+        
     }
-    )
+    );
 
 }
 
 
-function promptQuantity(response){
+function promptQuantity(item){
     inquirer.prompt([
         {
             type: "integer",
@@ -58,16 +94,28 @@ function promptQuantity(response){
         }
     ])
     .then(function(userResponse){
-        console.log(userResponse.stock_quantity);
+        var quantity = userResponse.stock_quantity;
         console.log("===========================================");
-        // if (promptQuantity < response[i].stock_quantity){
-        //     connection.query("UPDATE products SET? WHERE?",
-        //     stock_quantity: stock_quantity[i] - userResponse.stock_quantity)
-        // //         for (let i = 0; i < stock_quantity.length; i++) {
-        // //             console.log("congrats")
-        // //         }
-        // }
-    })
+         if (quantity <= item.stock_quantity){
+             connection.query("UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?",
+            [quantity, item.item_id], function(error, res){
+                if (error){
+                    console.log(error);
+                }else{
+                    console.log("congrats. You have purchased " + item.product_name + ". Your total cost is $" + item.price * quantity + "." );
+                    displayTable();
+                }
+                 
+            
+             
+            });
+    
+        }
+        else{
+            console.log("Sorry we do not have that amount in stock");
+            displayTable();
+        }
+    });
 }
 
 

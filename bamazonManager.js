@@ -28,24 +28,31 @@ function managerPrompt(){
     switch (ans.managerPrompt) {
         case "View products for sale":
             viewStock();
+            connection.end();
             break;
     
         case "View low inventory":
+            viewLowInventory();
+            connection.end();
             break;
 
         case "Add to inventory":
+            addInventory();
+            
             break;
 
         case "Add a new product":
+            addNewProduct();
+            
             break;
 
         case "Exit":
             console.log("BYE!")
+            connection.end();
             break;
     }
-//rewrite into a switch case statement
-   function viewStock()
-   {
+// allows manager to see all of the items available in the store
+   function viewStock(){
        var queryStr ="SELECT item_id, product_name, price, stock_quantity FROM products";
         connection.query(queryStr, function(error, response){
             if (error){
@@ -59,5 +66,36 @@ function managerPrompt(){
         
         }
     
-    })
+    });
+// allows manager to see how low inventory is running
+    function viewLowInventory(){
+        console.log("----LOW INVENTORY----")
+
+        connection.query("SELECT * FROM products", function(error, response){
+            if (error) throw err;
+            
+            for (var i =0;  i<response.length; i++){
+                if (response[i].stock_quantity <= 5){
+                    console.log("ID: "+ response[i].item_id + "|" + "Product: "+ response[i].product_name + "|" + "Quantity: " + response[i].stock_quantity+ "|")
+                }
+            }
+        })
+    }
+
+// allows manager to update inventory
+    function addInventory(){
+        console.log("----ADD NEW INVENTORY HERE----")
+        connection.query("SELECT * FROM products", function(error, response){
+            if(error) throw err;
+
+        //query for 
+        })
+    }
+// allows Manager to add new product to the store
+    function addNewProduct(){
+        console.log("----ADD NEW PRODUCT HERE----")
+    }
+
+
+
 }
